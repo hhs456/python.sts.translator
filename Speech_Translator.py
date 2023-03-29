@@ -4,7 +4,8 @@ from googletrans import Translator
 import pyaudio
 from google.cloud import speech_v1p1beta1 as speech
 from google.oauth2 import service_account
-
+import os
+import pyttsx3
 
 # Google Translate setup
 translator = Translator()
@@ -46,6 +47,11 @@ def transcribe_audio(audio_data, lang='zh-TW'):
     return text
 
 
+# Define function to play audio
+def play_audio(audio_path):
+    os.system("afplay " + audio_path)
+
+
 # Usage
 with mic as source:
     print("Please speak now: ")
@@ -56,7 +62,21 @@ try:
     print("Text:", text)
     translation = translator.translate(text, src='zh-tw', dest='en')
     print("Translation:", translation.text)
-    # os.system(f'text2speech.exe "{translation.text}"')
+    
+    # Convert translated text to speech and save to file
+    speaker = pyttsx3.init()
+    speaker.setProperty('voice', 'zh')
+    speaker.say(text)
+    speaker.setProperty('voice', 'en')
+    speaker.say(translation.text)    
+    
+    # Save the audio file
+    speaker.save_to_file(text, r'D:\User\Documents\GitHub\Speech-Translator\Speaker\chinese.mp3')    
+    speaker.save_to_file(translation.text, r'D:\User\Documents\GitHub\Speech-Translator\Speaker\english.mp3')
+    
+    # Run
+    speaker.runAndWait()        
+    
 except Exception as e:
     print("Error:", e)
 
